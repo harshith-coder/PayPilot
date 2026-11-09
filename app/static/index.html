@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PayPilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213d;--mute:#5b6678;--bg:#f4f7fb;--panel:#fff;--line:#d9dee7;--blue:#0b63ce;--navy:#003087;--yellow:#ffc439;--green:#1e8e5a;--red:#c0392b;--amber:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 Manrope,system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+header{padding:18px 28px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;color:var(--navy)}
+header h1:before{content:"";display:inline-block;width:10px;height:10px;margin:0 8px 3px 0;border-radius:50%;background:var(--yellow)}
+header span{color:var(--mute);font-size:14px}
+.connection{margin-left:auto;display:flex;gap:8px;align-items:center}
+.badge{padding:5px 10px;border-radius:99px;background:#edf7f1;color:var(--green);font-size:12px;font-weight:700;text-transform:capitalize}
+.mock{background:#fff4d6;color:#7a5600;padding:3px 10px;border-radius:99px;font-size:13px}
+.auth{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--navy);font-weight:700;cursor:pointer}
+.auth-screen{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#f4f7fb,#e8f1ff)}
+.auth-card{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px;box-shadow:0 12px 40px #00308718}
+.auth-card h2{margin:0 0 6px;color:var(--navy)}.auth-card p{color:var(--mute);margin:0 0 22px}
+.auth-card form{display:grid;gap:12px;padding:0;border:0}.auth-card label{font-size:13px;font-weight:700}
+.auth-card input{width:100%;margin-top:5px}.auth-card .switch{margin-top:18px;text-align:center;color:var(--mute);font-size:13px}.link{border:0;background:none;color:var(--blue);padding:0}
+main{max-width:1300px;margin:auto;padding:26px 28px 40px}
+.hero{margin-bottom:20px}.hero h2{margin:0;font-size:28px;letter-spacing:-.04em}.hero p{margin:5px 0 18px;color:var(--mute)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.step{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--mute);font-size:13px}
+.step b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#e8f1ff;color:var(--blue);font-size:12px}
+.step.active{border-color:#9fc4f2;box-shadow:0 2px 8px #0b63ce12;color:var(--ink)}.step.active b{background:var(--blue);color:#fff}
+.workspace{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:20px}
+@media(max-width:900px){main{padding:14px}.workspace{grid-template-columns:1fr}.steps{grid-template-columns:repeat(2,1fr)}.connection{display:none}}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.chat{display:flex;flex-direction:column;height:calc(100vh - 110px);min-height:460px}
+.log{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.m{max-width:88%;padding:9px 13px;border-radius:10px;white-space:pre-wrap}
+.m.user{align-self:flex-end;background:var(--blue);color:#fff}
+.m.assistant{align-self:flex-start;background:#f1f3f7}
+.hint{color:var(--mute);padding:4px 2px}
+.draft{align-self:stretch;border:1px solid var(--blue);border-radius:10px;padding:12px;background:#f6faff}
+.draft dl{display:grid;grid-template-columns:90px 1fr;gap:4px 10px;margin:0 0 10px}
+.draft dt{color:var(--mute)}.draft dd{margin:0;font-weight:600}
+form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit}
+button{font:inherit;font-weight:600;padding:9px 14px;border-radius:8px;border:1px solid var(--blue);background:var(--blue);color:#fff;cursor:pointer}
+button.ghost{background:#fff;color:var(--blue)}
+button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:3px solid #8ab8f5;outline-offset:2px}
+.toolbar{display:flex;gap:8px;padding:14px 18px;border-bottom:1px solid var(--line);align-items:center}
+.toolbar input{min-width:180px}.toolbar select{padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.stats div{padding:14px 18px;border-right:1px solid var(--line)}.stats div:last-child{border:0}
+.stats b{display:block;font-size:22px;letter-spacing:-.02em}.stats small{color:var(--mute)}
+.wrap{overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mute);font-weight:600;font-size:13px}
+.pill{padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600}
+.sent{background:#e5efff;color:var(--blue)}.paid{background:#dff3e8;color:var(--green)}
+.overdue{background:#fbe3df;color:var(--red)}.cancelled,.refunded{background:#eee;color:var(--mute)}
+td button{padding:4px 10px;font-size:13px;margin-right:6px}
+.empty{padding:36px;text-align:center;color:var(--mute)}
+.toast{position:fixed;bottom:18px;right:18px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;max-width:420px}
+.toast.err{background:var(--red)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+const getToken = () => localStorage.getItem("paypilot_token");
+const authHeaders = () => getToken() ? { Authorization: "Bearer " + getToken() } : {};
+const api = async (path, opts) => {
+  const r = await fetch("/api" + path, opts ? { method: "POST", headers: { "Content-Type": "application/json", ...authHeaders() }, body: JSON.stringify(opts) } : { headers: authHeaders() });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.detail || "Request failed");
+  return j;
+};
+const post = (p) => fetch("/api" + p, { method: "POST", headers: authHeaders() }).then(async r => { const j = await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.detail||"Request failed"); return j; });
+const money = (n, c) => new Intl.NumberFormat(undefined, { style: "currency", currency: c }).format(n);
+
+function App() {
+  const [cfg, setCfg] = useState({});
+  const [invoices, setInvoices] = useState([]);
+  const [msgs, setMsgs] = useState([]);
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [toast, setToast] = useState(null);
+  const [user, setUser] = useState(null);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
+  const [authForm, setAuthForm] = useState({ email: "", password: "" });
+  const [authBusy, setAuthBusy] = useState(false);
+  const log = useRef();
+
+  const say = (t, err) => { setToast({ t, err }); setTimeout(() => setToast(null), 4500); };
+  const load = () => {
+    setLoading(true);
+    return api("/invoices").then(setInvoices).catch(e => say(e.message, true)).finally(() => setLoading(false));
+  };
+  useEffect(() => {
+    api("/config").then(setCfg).catch(e => say(e.message, true));
+    if (getToken()) api("/auth/me").then(setUser).catch(() => localStorage.removeItem("paypilot_token"));
+  }, []);
+  useEffect(() => { if (user) load(); }, [user]);
+  useEffect(() => { log.current && (log.current.scrollTop = log.current.scrollHeight); }, [msgs]);
+
+  const send = async (e) => {
+    e.preventDefault();
+    if (!text.trim() || busy) return;
+    const next = [...msgs, { role: "user", content: text }];
+    setMsgs(next); setText(""); setBusy(true);
+    try {
+      const r = await api("/chat", { messages: next.map(({ role, content }) => ({ role, content })) });
+      setMsgs([...next, { role: "assistant", content: r.reply, draft: r.draft }]);
+    } catch (err) { say(err.message, true); }
+    setBusy(false);
+  };
+
+  const confirm = async (i) => {
+    setBusy(true);
+    try {
+      const inv = await api("/invoices", msgs[i].draft);
+      setMsgs(msgs.map((m, k) => k === i ? { ...m, draft: null, content: `Invoice ${inv.number} sent to ${inv.client_name}.` } : m));
+      load();
+    } catch (err) { say(err.message, true); }
+    setBusy(false);
+  };
+  const discard = (i) => setMsgs(msgs.map((m, k) => k === i ? { ...m, draft: null, content: "Draft discarded." } : m));
+  const act = (p, ok) => {
+    if (busy) return;
+    setBusy(true);
+    post(p).then(() => { load(); ok && say(ok); }).catch(e => say(e.message, true)).finally(() => setBusy(false));
+  };
+  const authenticate = async (e) => {
+    e.preventDefault();
+    setAuthBusy(true);
+    try {
+      if (authMode === "signup") {
+        await api("/auth/register", authForm);
+      }
+      const result = await api("/auth/login", authForm);
+      localStorage.setItem("paypilot_token", result.token);
+      setUser(result.user);
+      setAuthOpen(false);
+      say(authMode === "signup" ? "Account created" : "Welcome back");
+      load();
+    } catch (err) { say(err.message, true); }
+    finally { setAuthBusy(false); }
+  };
+  const logout = () => { localStorage.removeItem("paypilot_token"); setUser(null); };
+
+  const open = invoices.filter(i => ["sent", "overdue"].includes(i.display_status));
+  const visibleInvoices = invoices.filter(i => {
+    const text = `${i.number} ${i.client_name} ${i.client_email} ${i.description}`.toLowerCase();
+    return (!query.trim() || text.includes(query.trim().toLowerCase()))
+      && (statusFilter === "all" || i.display_status === statusFilter);
+  });
+  const sum = (arr) => Object.entries(arr.reduce((a, i) => (a[i.currency] = (a[i.currency] || 0) + i.amount, a), {})).map(([c, v]) => money(v, c)).join(" + ") || "0";
+
+  const authCard = <div className="auth-screen"><div className="auth-card">
+    <h2>{authMode === "login" ? "Welcome to PayPilot" : "Create your PayPilot account"}</h2>
+    <p>{authMode === "login" ? "Sign in to manage your invoices securely." : "Save invoices to your private workspace."}</p>
+    <form onSubmit={authenticate}>
+      <label>Email<input type="email" required value={authForm.email} onChange={e => setAuthForm({...authForm, email: e.target.value})} /></label>
+      <label>Password<input type="password" required minLength="12" value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} placeholder="At least 12 characters" /></label>
+      <button disabled={authBusy}>{authBusy ? "Working…" : authMode === "login" ? "Sign in" : "Create account"}</button>
+    </form>
+    <div className="switch">{authMode === "login" ? "New to PayPilot? " : "Already have an account? "}
+      <button className="link" onClick={() => setAuthMode(authMode === "login" ? "signup" : "login")}>{authMode === "login" ? "Create an account" : "Sign in"}</button>
+    </div>
+  </div></div>;
+  if (!user) return authCard;
+  return (<>
+    <header><h1>PayPilot</h1><span>Simple invoicing, powered by AI</span>
+      <div className="connection">
+        <div className="badge">AI · {cfg.ai_provider || "gemini"}</div>
+        {cfg.mock ? <div className="mock">PayPal sandbox</div> : <div className="badge">PayPal connected</div>}
+        <div className="badge">{user.email}</div><button className="auth" onClick={logout}>Sign out</button>
+      </div>
+    </header>
+    <main>
+      <div className="hero">
+        <h2>Get paid without the back-and-forth.</h2>
+        <p>Describe the work, review the invoice, and track payment from one calm workspace.</p>
+        <div className="steps">
+          <div className="step active"><b>1</b> Describe work</div>
+          <div className="step"><b>2</b> Review invoice</div>
+          <div className="step"><b>3</b> Send with PayPal</div>
+          <div className="step"><b>4</b> Track payment</div>
+        </div>
+      </div>
+      <div className="workspace">
+      <section className="chat">
+        <div className="log" ref={log}>
+          {!msgs.length && <div className="hint">Try: “Invoice Ravi (ravi@example.com) 120 for logo design, due in 7 days”. You can also ask “Who still owes me money?”</div>}
+          {msgs.map((m, i) => <React.Fragment key={i}>
+            <div className={"m " + m.role}>{m.content}</div>
+            {m.draft && <div className="draft">
+              <dl><dt>Client</dt><dd>{m.draft.client_name} ({m.draft.client_email})</dd>
+                <dt>For</dt><dd>{m.draft.description}</dd>
+                <dt>Amount</dt><dd>{money(m.draft.amount, m.draft.currency)}</dd>
+                <dt>Due</dt><dd>{m.draft.due_date}</dd></dl>
+              <button disabled={busy} onClick={() => confirm(i)}>Confirm and send</button>{" "}
+              <button className="ghost" onClick={() => discard(i)}>Discard</button>
+            </div>}
+          </React.Fragment>)}
+          {busy && <div className="hint">Working…</div>}
+        </div>
+        <form onSubmit={send}>
+          <input value={text} onChange={e => setText(e.target.value)} placeholder="Describe an invoice or ask a question" aria-label="Message" />
+          <button disabled={busy}>Send</button>
+        </form>
+      </section>
+      <section>
+        <div className="stats">
+          <div><b>{sum(open)}</b><small>Outstanding</small></div>
+          <div><b>{invoices.filter(i => i.display_status === "overdue").length}</b><small>Overdue</small></div>
+          <div><b>{sum(invoices.filter(i => i.display_status === "paid"))}</b><small>Paid</small></div>
+        </div>
+        <div className="toolbar">
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search invoices" aria-label="Search invoices" />
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} aria-label="Filter by status">
+            <option value="all">All statuses</option>
+            <option value="sent">Sent</option>
+            <option value="overdue">Overdue</option>
+            <option value="paid">Paid</option>
+          </select>
+          <button className="ghost" onClick={load} disabled={loading}>Refresh all</button>
+        </div>
+        <div className="wrap">
+          {loading ? <div className="empty">Loading invoices…</div> : visibleInvoices.length ? <table>
+            <thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Due</th><th>Status</th><th>Reminders</th><th></th></tr></thead>
+            <tbody>{visibleInvoices.map(i => <tr key={i.id}>
+              <td>{i.number}</td><td>{i.client_name}</td><td>{money(i.amount, i.currency)}</td><td>{i.due_date}</td>
+              <td><span className={"pill " + i.display_status}>{i.display_status}</span></td><td>{i.reminders}</td>
+              <td>
+                <button className="ghost" onClick={() => act(`/invoices/${i.id}/sync`, "Status refreshed")}>Refresh</button>
+                {i.display_status !== "paid" && <button className="ghost" onClick={() => act(`/invoices/${i.id}/remind`, "Reminder sent")}>Send reminder</button>}
+                {cfg.mock && i.display_status !== "paid" && <button className="ghost" onClick={() => act(`/invoices/${i.id}/mark-paid`)}>Simulate payment</button>}
+              </td></tr>)}</tbody></table>
+            : <div className="empty">{invoices.length ? "No invoices match your filters." : "No invoices yet. Describe one in the chat to create your first."}</div>}
+        </div>
+      </section>
+      </div>
+    </main>
+    {toast && <div className={"toast" + (toast.err ? " err" : "")} role="status">{toast.t}</div>}
+    {!user && (cfg.auth_required || authOpen) && authCard}
+  </>);
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
